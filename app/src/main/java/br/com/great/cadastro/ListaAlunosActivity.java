@@ -17,9 +17,7 @@ import java.util.List;
 import br.com.great.cadastro.dao.AlunoDAO;
 import br.com.great.cadastro.modelo.Aluno;
 
-/**
- * Created by ufc110.pedrosa on 23/10/2015.
- */
+
 public class ListaAlunosActivity extends AppCompatActivity {
 
     private ListView lista;
