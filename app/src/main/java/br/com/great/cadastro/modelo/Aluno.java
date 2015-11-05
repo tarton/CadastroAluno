@@ -1,8 +1,6 @@
 package br.com.great.cadastro.modelo;
 
-/**
- * Created by ufc110.pedrosa on 03/11/2015.
- */
+
 public class Aluno {
 
     private String nome;

@@ -9,9 +9,7 @@ import android.widget.Toast;
 import br.com.great.cadastro.dao.AlunoDAO;
 import br.com.great.cadastro.modelo.Aluno;
 
-/**
- * Created by ufc110.pedrosa on 27/10/2015.
- */
+
 public class FormularioActivity extends AppCompatActivity {
 
     private FormularioHelper helper;

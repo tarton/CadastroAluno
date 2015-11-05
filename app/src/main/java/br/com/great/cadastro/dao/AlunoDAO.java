@@ -11,9 +11,7 @@ import java.util.List;
 
 import br.com.great.cadastro.modelo.Aluno;
 
-/**
- * Created by ufc110.pedrosa on 03/11/2015.
- */
+
 public class AlunoDAO extends SQLiteOpenHelper {
 
     private static final String DATABASE = "CadastroAlunos";

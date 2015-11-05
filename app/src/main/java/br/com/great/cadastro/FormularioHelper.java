@@ -5,9 +5,7 @@ import android.widget.RatingBar;
 
 import br.com.great.cadastro.modelo.Aluno;
 
-/**
- * Created by ufc110.pedrosa on 03/11/2015.
- */
+
 public class FormularioHelper {
 
     private Aluno aluno;
