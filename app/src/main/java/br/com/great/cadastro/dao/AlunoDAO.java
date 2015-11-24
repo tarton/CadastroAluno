@@ -44,14 +44,21 @@ public class AlunoDAO extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public void insere(Aluno aluno) {
+    private ContentValues toContentValues(Aluno aluno) {
         ContentValues cv = new ContentValues();
+        //cv.put("id", aluno.getId());  // Isso quenga tudo! Pq? Pesquisar...
         cv.put("nome", aluno.getNome());
         cv.put("telefone", aluno.getTelefone());
         cv.put("endereco", aluno.getEndereco());
         cv.put("site", aluno.getSite());
         cv.put("nota", aluno.getNota());
         cv.put("caminhoFoto", aluno.getCaminhoFoto());
+        return cv;
+    }
+
+    public void salvar(Aluno aluno) {
+        ContentValues cv = new ContentValues();
+        cv = toContentValues(aluno);
 
         getWritableDatabase().insert(TABELA, null, cv);
     }
@@ -78,5 +85,24 @@ public class AlunoDAO extends SQLiteOpenHelper {
         }
 
         return alunos;
+    }
+
+    public void deletar(Aluno aluno) {
+        String[] args = {String.valueOf(aluno.getId())};
+        getWritableDatabase().delete(TABELA, "id=?", args);
+    }
+
+    public void atualizar(Aluno aluno) {
+        ContentValues cv = new ContentValues();
+
+        cv.put("nome", aluno.getNome());
+        cv.put("telefone", aluno.getTelefone());
+        cv.put("endereco", aluno.getEndereco());
+        cv.put("site", aluno.getSite());
+        cv.put("nota", aluno.getNota());
+        cv.put("caminhoFoto", aluno.getCaminhoFoto());
+
+        String[] args = {String.valueOf(aluno.getId())};
+        getWritableDatabase().update("Alunos", cv, "id=?", args);
     }
 }

@@ -1,9 +1,11 @@
 package br.com.great.cadastro;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,12 +17,24 @@ import android.widget.Toast;
 import java.util.List;
 
 import br.com.great.cadastro.dao.AlunoDAO;
+import br.com.great.cadastro.extras.Extras;
 import br.com.great.cadastro.modelo.Aluno;
 
 
 public class ListaAlunosActivity extends AppCompatActivity {
-
     private ListView lista;
+    private Aluno aluno;
+
+    private void carregaLista() {
+        // Atualizando a lista de Alunos
+        AlunoDAO dao = new AlunoDAO(this);
+        List<Aluno> alunos = dao.getLista();
+
+        ArrayAdapter<Aluno> adapter =
+                new ArrayAdapter<Aluno>(this, android.R.layout.simple_list_item_1, alunos);
+        lista.setAdapter(adapter);
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +42,9 @@ public class ListaAlunosActivity extends AppCompatActivity {
         setContentView(R.layout.listagem_alunos);   // Configura os comportamentos da View (listagem_alunos)
 
         lista = (ListView) findViewById(R.id.lista);
+        registerForContextMenu(lista);              // Para que o onCreateContextMenu seja exibido,
+                                                    // precisamos registrá-lo em nossa activity (no caso
+                                                    // a 'lista')
 
         //final String[] alunos = {"Edgar", "Tarton", "Oliveira", "Pedrosa"};   // Array chumbado!
         /*
@@ -47,7 +64,13 @@ public class ListaAlunosActivity extends AppCompatActivity {
         lista.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapter, View view, int position, long id) {
-                Toast.makeText(ListaAlunosActivity.this, "A posição é " + position, Toast.LENGTH_SHORT).show();
+                Aluno alunoParaSerAlterado = (Aluno) adapter.getItemAtPosition(position);
+
+                Intent irParaOFormulario = new Intent(ListaAlunosActivity.this, FormularioActivity.class);
+                irParaOFormulario.putExtra(Extras.ALUNO_SELECIONADO, alunoParaSerAlterado);
+
+                startActivity(irParaOFormulario);
+                //Toast.makeText(ListaAlunosActivity.this, "A posição é " + position, Toast.LENGTH_SHORT).show();
             }
         }); // Representa um clique em um ítem da lista
 
@@ -55,10 +78,12 @@ public class ListaAlunosActivity extends AppCompatActivity {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapter, View view,
                                            int position, long id) {
-                Toast.makeText(ListaAlunosActivity.this, "Aluno clicado é " + adapter.getItemAtPosition(position), Toast.LENGTH_SHORT).show();
+                aluno = (Aluno) adapter.getItemAtPosition(position);
+                //Toast.makeText(ListaAlunosActivity.this, "Aluno clicado é " + adapter.getItemAtPosition(position), Toast.LENGTH_SHORT).show();
                 // Toast.makeText(ListaAlunosActivity.this, "Aluno clicado é " + aluno[posicao], Toast.LENGTH_SHORT).show();
 
-                return true;    // Vou consumir esse evento de clique sozinho? true : false
+                return false;    // Vou consumir esse evento de clique sozinho? true : false
+                // Para que o onCreateContextMenu consiga funcionar precisamos retornar 'false', pois
             }
         });
     }
@@ -67,15 +92,7 @@ public class ListaAlunosActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         Log.i("CICLO DE VIDA", "onResume");
-
-        // Atualizando a lista de Alunos
-        AlunoDAO dao = new AlunoDAO(this);
-        List<Aluno> alunos = dao.getLista();
-
-        ArrayAdapter<Aluno> adapter =
-                new ArrayAdapter<Aluno>(this, android.R.layout.simple_list_item_1, alunos);
-        lista.setAdapter(adapter);
-        // Fim da atualização da lista de Alunos
+        this.carregaLista();
     }
 
     @Override
@@ -140,4 +157,29 @@ public class ListaAlunosActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        menu.add("Ligar");
+        menu.add("Enviar SMS");
+        menu.add("Achar no Mapa");
+        menu.add("Navegar no site");
+        MenuItem deletar = menu.add("Deletar");
+        deletar.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                AlunoDAO dao = new AlunoDAO(ListaAlunosActivity.this);
+                dao.deletar(aluno);
+                dao.close();
+
+                carregaLista();
+                return false;
+            }
+        });
+
+        menu.add("Enviar E-Mail");
+
+        super.onCreateContextMenu(menu, v, menuInfo);
+    }
+
 }
