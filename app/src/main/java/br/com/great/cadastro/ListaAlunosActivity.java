@@ -1,8 +1,12 @@
 package br.com.great.cadastro;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -43,8 +47,8 @@ public class ListaAlunosActivity extends AppCompatActivity {
 
         lista = (ListView) findViewById(R.id.lista);
         registerForContextMenu(lista);              // Para que o onCreateContextMenu seja exibido,
-                                                    // precisamos registrá-lo em nossa activity (no caso
-                                                    // a 'lista')
+        // precisamos registrá-lo em nossa activity (no caso
+        // a 'lista')
 
         //final String[] alunos = {"Edgar", "Tarton", "Oliveira", "Pedrosa"};   // Array chumbado!
         /*
@@ -160,10 +164,52 @@ public class ListaAlunosActivity extends AppCompatActivity {
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        menu.add("Ligar");
+        MenuItem ligar = menu.add("Ligar");
+        ligar.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
+
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+
+                Intent irParaATelaDeDiscagem = new Intent(Intent.ACTION_CALL);
+
+                // É aqui que o telefone é passado para a intent implícita de Chamada
+                Uri telefoneDoAluno = Uri.parse("tel:" + aluno.getTelefone());
+                irParaATelaDeDiscagem.setData(telefoneDoAluno);
+
+                if (ActivityCompat.checkSelfPermission(ListaAlunosActivity.this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    Toast.makeText(ListaAlunosActivity.this, "Permissão negada", Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+                startActivity(irParaATelaDeDiscagem);
+                return false;
+            }
+        });
+
         menu.add("Enviar SMS");
         menu.add("Achar no Mapa");
-        menu.add("Navegar no site");
+
+        MenuItem site = menu.add("Navegar no site");
+        site.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                Intent abrirOSiteDoAluno = new Intent(Intent.ACTION_VIEW);
+
+                Uri siteDoAluno = Uri.parse("http://" + aluno.getSite());
+                abrirOSiteDoAluno.setData(siteDoAluno);
+
+                startActivity(abrirOSiteDoAluno);
+                return false;
+            }
+        });
+
         MenuItem deletar = menu.add("Deletar");
         deletar.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
